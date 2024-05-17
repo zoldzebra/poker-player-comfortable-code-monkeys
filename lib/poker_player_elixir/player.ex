@@ -80,7 +80,7 @@ defmodule PokerPlayerElixirWeb.Player do
 
   defp high_cards_logic(current_buy_in, stack) do
     cond do
-      current_buy_in > stack * 0.5 -> 0
+      current_buy_in > stack * 0.75 -> 0
       true -> current_buy_in
     end
   end
