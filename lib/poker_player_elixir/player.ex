@@ -17,23 +17,33 @@ defmodule PokerPlayerElixirWeb.Player do
     [our_player | _] = players
     hole_cards = our_player["hole_cards"]
     ranks = Enum.map(hole_cards, fn card -> card["rank"] end)
+    community_cards = game_state["community_cards"]
 
-    # if Enum.count(our_cards) >= 5 do
-    #   IO.inspect(
-    #     RainManGateway.fetch_cards_ranking(our_cards),
-    #     label: "cards_ranking"
-    #   )
-    # end
+    our_cards = [hole_cards | community_cards]
+    IO.inspect(our_cards, label: "our cards")
 
-    if has_pair(ranks) do
-      game_state["current_buy_in"] * 2
-    else
-      game_state["current_buy_in"]
+    if Enum.count(our_cards) >= 5 do
+      IO.inspect(
+        RainManGateway.fetch_cards_ranking(our_cards),
+        label: "cards_ranking"
+      )
+    end
+
+    cond do
+      hole_cards_has_pair(ranks) -> game_state["current_buy_in"] * 2
+      hole_has_only_low_cards(ranks) -> 0
+      true -> game_state["current_buy_in"]
     end
   end
 
-  defp has_pair([card_1, card_2]) do
-    card_1 == card_2
+  defp hole_has_only_low_cards([rank_1, rank_2]) do
+    if rank_1 <= 7 && rank_2 <= 7 do
+      true
+    end
+  end
+
+  defp hole_cards_has_pair([rank_1, rank_2]) do
+    rank_1 == rank_2
   end
 
   def showdown(_game_state) do
