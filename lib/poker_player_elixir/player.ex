@@ -5,11 +5,17 @@ defmodule PokerPlayerElixirWeb.Player do
   def version(), do: @version
 
   def bet_request(game_state) do
+    Kernel.round(do_bet_request(game_state))
+  end
+
+  def do_bet_request(game_state) do
     players = game_state["players"]
     [our_player | _] = players
     hole_cards = our_player["hole_cards"]
     ranks = Enum.map(hole_cards, fn card -> map_rank_to_number(card["rank"]) end)
     community_cards = game_state["community_cards"]
+    current_buy_in = game_state["current_buy_in"]
+    stack = our_player["stack"]
 
     our_cards = hole_cards ++ community_cards
     IO.inspect(game_state, label: "game_state")
@@ -19,8 +25,8 @@ defmodule PokerPlayerElixirWeb.Player do
       :not_enough_cards ->
         cond do
           hole_cards_has_pair(ranks) -> game_state["current_buy_in"] * 2
-          hole_has_only_low_cards(ranks) -> 0
-          true -> game_state["current_buy_in"]
+          hole_has_only_low_cards(ranks) -> low_cards_logic(current_buy_in, stack)
+          true -> high_cards_logic(current_buy_in, stack)
         end
 
       rank ->
@@ -56,11 +62,26 @@ defmodule PokerPlayerElixirWeb.Player do
 
   defp get_card_ranking(our_cards) do
     if Enum.count(our_cards) >= 5 do
-      {:ok, cards_ranking} = RainManGateway.fetch_cards_ranking(our_cards)
-      IO.inspect(cards_ranking, label: "cards_ranking")
-      cards_ranking["rank"]
+      case RainManGateway.fetch_cards_ranking(our_cards) do
+        {:ok, cards_ranking} -> cards_ranking["rank"]
+        {:error, _} -> :not_enough_cards
+      end
     else
       :not_enough_cards
+    end
+  end
+
+  defp low_cards_logic(current_buy_in, stack) do
+    cond do
+      current_buy_in > stack * 0.1 -> 0
+      true -> current_buy_in
+    end
+  end
+
+  defp high_cards_logic(current_buy_in, stack) do
+    cond do
+      current_buy_in > stack * 0.5 -> 0
+      true -> current_buy_in
     end
   end
 
