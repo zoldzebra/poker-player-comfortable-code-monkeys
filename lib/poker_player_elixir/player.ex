@@ -20,6 +20,7 @@ defmodule PokerPlayerElixirWeb.Player do
     community_cards = game_state["community_cards"]
 
     our_cards = hole_cards ++ community_cards
+    IO.inspect(game_state, label: "game_state")
     IO.inspect(our_cards, label: "our cards")
 
     if Enum.count(our_cards) >= 5 do
