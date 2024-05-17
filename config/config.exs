@@ -10,6 +10,7 @@ import Config
 # Configures the endpoint
 config :poker_player_elixir, PokerPlayerElixirWeb.Endpoint,
   url: [host: "localhost"],
+  pubsub_server: PokerPlayerElixir.PubSub,
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: PokerPlayerElixirWeb.ErrorHTML, json: PokerPlayerElixirWeb.ErrorJSON],

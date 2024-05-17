@@ -1,4 +1,6 @@
 defmodule PokerPlayerElixirWeb.Player do
+  # alias PokerPlayerElixir.Gateway.RainManGateway
+
   @version "0.0.3"
   def version(), do: @version
 
@@ -15,6 +17,13 @@ defmodule PokerPlayerElixirWeb.Player do
     [our_player | _] = players
     hole_cards = our_player["hole_cards"]
     ranks = Enum.map(hole_cards, fn card -> card["rank"] end)
+
+    # if Enum.count(our_cards) >= 5 do
+    #   IO.inspect(
+    #     RainManGateway.fetch_cards_ranking(our_cards),
+    #     label: "cards_ranking"
+    #   )
+    # end
 
     if has_pair(ranks) do
       game_state["current_buy_in"] * 2
