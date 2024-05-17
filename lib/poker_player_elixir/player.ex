@@ -1,5 +1,5 @@
 defmodule PokerPlayerElixirWeb.Player do
-  # alias PokerPlayerElixir.Gateway.RainManGateway
+  alias PokerPlayerElixir.Gateway.RainManGateway
 
   @version "0.0.3"
   def version(), do: @version
@@ -19,7 +19,7 @@ defmodule PokerPlayerElixirWeb.Player do
     ranks = Enum.map(hole_cards, fn card -> card["rank"] end)
     community_cards = game_state["community_cards"]
 
-    our_cards = [hole_cards | community_cards]
+    our_cards = hole_cards ++ community_cards
     IO.inspect(our_cards, label: "our cards")
 
     if Enum.count(our_cards) >= 5 do
@@ -37,7 +37,7 @@ defmodule PokerPlayerElixirWeb.Player do
   end
 
   defp hole_has_only_low_cards([rank_1, rank_2]) do
-    if rank_1 <= 7 && rank_2 <= 7 do
+    if rank_1 <= "7" && rank_2 <= "7" do
       true
     end
   end
