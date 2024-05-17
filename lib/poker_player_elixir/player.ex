@@ -10,13 +10,12 @@ defmodule PokerPlayerElixirWeb.Player do
 
   def do_bet_request(game_state) do
     players = game_state["players"]
-    [our_player | others] = players
+    [our_player | _] = players
     hole_cards = our_player["hole_cards"]
     ranks = Enum.map(hole_cards, fn card -> map_rank_to_number(card["rank"]) end)
     community_cards = game_state["community_cards"]
     current_buy_in = game_state["current_buy_in"]
     stack = our_player["stack"]
-    other_player_states = Enum.map(others, fn player -> player["status"] end)
 
     our_cards = hole_cards ++ community_cards
     IO.inspect(game_state, label: "game_state")
@@ -25,14 +24,9 @@ defmodule PokerPlayerElixirWeb.Player do
     case get_card_ranking(our_cards) do
       :not_enough_cards ->
         cond do
-          hole_cards_has_pair(ranks) ->
-            game_state["current_buy_in"] * 2
-
-          hole_has_only_low_cards(ranks) ->
-            low_cards_logic(current_buy_in, stack, other_player_states)
-
-          true ->
-            high_cards_logic(current_buy_in, stack, other_player_states)
+          hole_cards_has_pair(ranks) -> game_state["current_buy_in"] * 2
+          hole_has_only_low_cards(ranks) -> low_cards_logic(current_buy_in, stack)
+          true -> high_cards_logic(current_buy_in, stack)
         end
 
       rank ->
@@ -77,36 +71,18 @@ defmodule PokerPlayerElixirWeb.Player do
     end
   end
 
-  defp low_cards_logic(current_buy_in, stack, other_player_states) do
+  defp low_cards_logic(current_buy_in, stack) do
     cond do
-      current_buy_in > stack * low_cards_limiter(other_player_states) -> 0
+      current_buy_in > stack * 0.1 -> 0
       true -> current_buy_in
     end
   end
 
-  defp high_cards_logic(current_buy_in, stack, other_player_states) do
+  defp high_cards_logic(current_buy_in, stack) do
     cond do
-      current_buy_in > stack * high_cards_limiter(other_player_states) -> 0
+      current_buy_in > stack * 0.75 -> 0
       true -> current_buy_in
     end
-  end
-
-  defp low_cards_limiter(other_player_states) do
-    case two_of_us_left(other_player_states) do
-      true -> 0.4
-      false -> 0.1
-    end
-  end
-
-  defp high_cards_limiter(other_player_states) do
-    case two_of_us_left(other_player_states) do
-      true -> 0.9
-      false -> 0.75
-    end
-  end
-
-  defp two_of_us_left(other_player_states) do
-    Enum.count(other_player_states, fn state -> state == "out" end) > 0
   end
 
   def showdown(_game_state) do
