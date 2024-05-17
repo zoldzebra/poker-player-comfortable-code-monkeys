@@ -16,7 +16,7 @@ defmodule PokerPlayerElixirWeb.Player do
     players = game_state["players"]
     [our_player | _] = players
     hole_cards = our_player["hole_cards"]
-    ranks = Enum.map(hole_cards, fn card -> card["rank"] end)
+    ranks = Enum.map(hole_cards, fn card -> map_rank_to_number(card["rank"]) end)
     community_cards = game_state["community_cards"]
 
     our_cards = hole_cards ++ community_cards
@@ -38,13 +38,23 @@ defmodule PokerPlayerElixirWeb.Player do
   end
 
   defp hole_has_only_low_cards([rank_1, rank_2]) do
-    if rank_1 <= "7" && rank_2 <= "7" do
+    if rank_1 < 8 && rank_2 < 8 do
       true
     end
   end
 
   defp hole_cards_has_pair([rank_1, rank_2]) do
     rank_1 == rank_2
+  end
+
+  defp map_rank_to_number(rank) do
+    case rank do
+      "A" -> 14
+      "K" -> 13
+      "Q" -> 12
+      "J" -> 11
+      _ -> String.to_integer(rank)
+    end
   end
 
   def showdown(_game_state) do
