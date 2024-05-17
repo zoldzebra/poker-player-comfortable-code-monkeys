@@ -34,7 +34,6 @@ defmodule PokerPlayerElixirWeb.Player do
 
         cond do
           rank > 3 -> our_player["stack"]
-          rank > 1 -> game_state["current_buy_in"] * 2
           rank > 0 -> game_state["current_buy_in"]
           true -> 0
         end
