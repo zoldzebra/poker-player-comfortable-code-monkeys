@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :poker_player_elixir, ecto_repos: [PokerPlayerElixir.Repo]
+
 # Configures the endpoint
 config :poker_player_elixir, PokerPlayerElixirWeb.Endpoint,
   url: [host: "localhost"],
